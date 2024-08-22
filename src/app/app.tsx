@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import '../style/index.css';
 
-const App = (props: object) => {
+const App = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<MediaRecorder>(null);
   const mediaStreamRef = useRef<MediaStream>(null);
@@ -13,7 +13,7 @@ const App = (props: object) => {
     recordedChunks.current.push(ev.data);
   };
 
-  const handleStopRecording = async (ev: Event) => {
+  const handleStopRecording = async () => {
     const blob = new Blob(recordedChunks.current, { type: 'video/mp4' });
     const arrayBuffer = await blob.arrayBuffer();
     window.electronAPI.saveVideoBuffer(arrayBuffer);
@@ -45,9 +45,12 @@ const App = (props: object) => {
 
     const stream = await navigator.mediaDevices.getDisplayMedia({
       audio: {
-        echoCancellation: true, // Reduces echo effect
-        noiseSuppression: true,  // Reduces background noise
-        sampleRate: 44100        // Sets the sample rate
+        autoGainControl: false,
+        echoCancellation: true,
+        noiseSuppression: false,
+        channelCount: 2,
+        sampleRate: 44100,
+        sampleSize: 24,
       },
       video: {
         frameRate: 60
