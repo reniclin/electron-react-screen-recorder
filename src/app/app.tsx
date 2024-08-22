@@ -7,6 +7,7 @@ const App = (props: object) => {
   const mediaStreamRef = useRef<MediaStream>(null);
   const recordedChunks = useRef<Blob[]>([]);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   const handleDataAvailable = (ev: BlobEvent) => {
     recordedChunks.current.push(ev.data);
@@ -14,7 +15,6 @@ const App = (props: object) => {
 
   const handleStopRecording = async (ev: Event) => {
     const blob = new Blob(recordedChunks.current, { type: 'video/mp4' });
-
     const arrayBuffer = await blob.arrayBuffer();
     window.electronAPI.saveVideoBuffer(arrayBuffer);
 
@@ -24,8 +24,8 @@ const App = (props: object) => {
   const handleStartRecording = () => {
     if (!isRecording && mediaStreamRef.current != null) {
       recorderRef.current = new MediaRecorder(mediaStreamRef.current, {
-        audioBitsPerSecond: 128000,
-        videoBitsPerSecond: 2500000,
+        audioBitsPerSecond: 2116800,
+        videoBitsPerSecond: 8000000,
         mimeType: "video/mp4",
       });
       recorderRef.current.ondataavailable = handleDataAvailable;
@@ -34,9 +34,10 @@ const App = (props: object) => {
       setIsRecording(true);
     } else {
       recorderRef.current?.stop();
+      videoRef.current.pause();
       setIsRecording(false);
+      setIsPlaying(false);
     }
-
   };
 
   const handleSelectVideoSource = async () => {
@@ -61,6 +62,7 @@ const App = (props: object) => {
       videoRef.current.srcObject = stream;
       videoRef.current.muted = true;
       videoRef.current.play();
+      setIsPlaying(true);
     }
 
     mediaStreamRef.current = stream;
@@ -68,23 +70,22 @@ const App = (props: object) => {
 
   return (
     <>
-      <h1>Electron React Screen Recorder</h1>
+      <h1>Screen Recorder</h1>
       <video ref={videoRef}></video>
-      {isRecording ? <p>Recording...</p> : <p>...</p>}
-      <button
-        onClick={handleStartRecording}
-      >
-        {isRecording ? 'Stop Recording' : 'Start Recording'}
-      </button>
-
-      <br />
-
-      <button
-        disabled={isRecording}
-        onClick={handleSelectVideoSource}
-      >
-        Choose a Video Source
-      </button>
+      <div id='controller'>
+        <button
+          disabled={!isPlaying}
+          onClick={handleStartRecording}
+        >
+          {isRecording ? 'Stop Recording' : 'Start Recording'}
+        </button>
+        <button
+          disabled={isRecording}
+          onClick={handleSelectVideoSource}
+        >
+          Select Video Source
+        </button>
+      </div>
     </>
   );
 }

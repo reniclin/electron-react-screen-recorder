@@ -12,10 +12,16 @@ app.whenReady().then(() => {
       defaultPath: `Video-${Date.now()}.mp4`
     });
 
-    console.log('filePath ', filePath);
-
     if (filePath) {
-      writeFile(filePath, buffer, () => console.log('video saved successfully!'));
+      writeFile(filePath, buffer, (error) => {
+        if (error) {
+          console.error(`[save-video-buffer] Failed to save ${filePath}`, error);
+        } else {
+          console.log(`[save-video-buffer] Video ${filePath} saved`);
+        }
+      });
+    } else {
+      console.log(`[save-video-buffer] filePath is empty.`);
     }
   });
 

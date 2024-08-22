@@ -1,8 +1,8 @@
 {
-  "name": "electron-react-gallery",
-  "productName": "electron-react-gallery",
+  "name": "electron-react-screen-recorder",
+  "productName": "Recorder",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "An electron example project for record screen",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
