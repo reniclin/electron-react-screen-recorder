@@ -1,5 +1,5 @@
 
-import { app, BrowserWindow, desktopCapturer, session, Menu, ipcMain, dialog } from 'electron';
+import { app, desktopCapturer, session, Menu, ipcMain, dialog } from 'electron';
 import { writeFile } from 'fs';
 
 app.whenReady().then(() => {
@@ -19,16 +19,6 @@ app.whenReady().then(() => {
     }
   });
 
-  // IPC get-video-sources
-  ipcMain.handle('get-video-sources', async () => await desktopCapturer.getSources({ types: ['screen'] }));
-
-  // IPC set-title
-  ipcMain.handle('set-title', (event, title) => {
-    const webContents = event.sender
-    const win = BrowserWindow.fromWebContents(webContents)
-    win.setTitle(title)
-  });
-
   // setDisplayMediaRequestHandler
   session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
     // for use navigator.mediaDevices.getDisplayMedia in render process
@@ -39,16 +29,13 @@ app.whenReady().then(() => {
         sources.map(source => ({
           label: source.name,
           click: () => {
-            console.log('OptionsMenu click', source)
             selectSource = source;
           },
         }))
       );
 
       videoOptionsMenu.on('menu-will-close', () => {
-        console.log('menu-will-close');
         setTimeout(() => {
-          console.log(`callback({ video: ${selectSource}, audio: 'loopback' })`);
           callback({ video: selectSource, audio: 'loopback' });
         }, 100);
       });
