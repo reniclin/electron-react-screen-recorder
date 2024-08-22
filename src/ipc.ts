@@ -9,7 +9,7 @@ app.whenReady().then(() => {
 
     const { filePath } = await dialog.showSaveDialog({
       buttonLabel: 'Save Video',
-      defaultPath: `vid-${Date.now()}.webm`
+      defaultPath: `Video-${Date.now()}.mp4`
     });
 
     console.log('filePath ', filePath);
@@ -19,6 +19,7 @@ app.whenReady().then(() => {
     }
   });
 
+  // IPC get-video-sources
   ipcMain.handle('get-video-sources', async () => await desktopCapturer.getSources({ types: ['screen'] }));
 
   // IPC set-title

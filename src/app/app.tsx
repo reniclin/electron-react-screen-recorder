@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import '../style/index.css';
 
 const App = (props: object) => {
-  console.log('pops', props)
   const videoRef = useRef<HTMLVideoElement>(null);
   const recorderRef = useRef<MediaRecorder>(null);
   const mediaStreamRef = useRef<MediaStream>(null);
@@ -10,14 +9,11 @@ const App = (props: object) => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
   const handleDataAvailable = (ev: BlobEvent) => {
-    console.log('video data available');
     recordedChunks.current.push(ev.data);
   };
 
   const handleStopRecording = async (ev: Event) => {
-    const blob = new Blob(recordedChunks.current, {
-      type: 'video/webm; codecs=vp9'
-    });
+    const blob = new Blob(recordedChunks.current, { type: 'video/mp4' });
 
     const arrayBuffer = await blob.arrayBuffer();
     window.electronAPI.saveVideoBuffer(arrayBuffer);
@@ -27,7 +23,11 @@ const App = (props: object) => {
 
   const handleStartRecording = () => {
     if (!isRecording && mediaStreamRef.current != null) {
-      recorderRef.current = new MediaRecorder(mediaStreamRef.current, { mimeType: 'video/webm; codecs=vp9' });
+      recorderRef.current = new MediaRecorder(mediaStreamRef.current, {
+        audioBitsPerSecond: 128000,
+        videoBitsPerSecond: 2500000,
+        mimeType: "video/mp4",
+      });
       recorderRef.current.ondataavailable = handleDataAvailable;
       recorderRef.current.onstop = handleStopRecording;
       recorderRef.current.start();
@@ -60,36 +60,6 @@ const App = (props: object) => {
     if (videoRef?.current != null) {
       videoRef.current.srcObject = stream;
       videoRef.current.muted = true;
-      videoRef.current.play();
-    }
-
-    mediaStreamRef.current = stream;
-  };
-
-  const handleSelectVideoSource2 = async () => {
-    const sources = await window.electronAPI.getVideoSources();
-
-    // Create a Stream
-    const stream = await (navigator.mediaDevices as any).getUserMedia({
-      audio: {
-        mandatory: {
-          chromeMediaSource: 'desktop'
-        }
-      },
-      video: {
-        mandatory: {
-          chromeMediaSource: 'desktop',
-          chromeMediaSourceId: sources[0].id
-        }
-      }
-    });
-
-    if (stream == null) {
-      return;
-    }
-
-    if (videoRef?.current != null) {
-      videoRef.current.srcObject = stream;
       videoRef.current.play();
     }
 
