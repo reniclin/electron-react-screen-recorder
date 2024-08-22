@@ -59,6 +59,7 @@ const App = (props: object) => {
 
     if (videoRef?.current != null) {
       videoRef.current.srcObject = stream;
+      videoRef.current.muted = true;
       videoRef.current.play();
     }
 
@@ -98,11 +99,8 @@ const App = (props: object) => {
   return (
     <>
       <h1>Electron React Screen Recorder</h1>
-
       <video ref={videoRef}></video>
-
       {isRecording ? <p>Recording...</p> : <p>...</p>}
-
       <button
         onClick={handleStartRecording}
       >
